@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Setup Checklist</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Manrope','Helvetica Neue',Helvetica,Arial,sans-serif;
+    background: #f8fafc;
+    padding: 20px 16px;
+    color: #2d3748;
+  }
+  .card {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px 26px;
+  }
+  .head-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .tag {
+    display: inline-block;
+    background: #e8f0fe;
+    color: #1a56db;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+  .reset {
+    font-family: inherit;
+    font-size: 12px;
+    color: #a0aec0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .progress-line { font-size: 13px; color: #4a5568; margin: 10px 0 16px 0; }
+  .bar { height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 18px; }
+  .bar-fill { height: 100%; background: #1A6AFF; width: 0%; transition: width .2s; }
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 4px;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .item:last-child { border-bottom: none; }
+  .checkbox {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1.5px solid #cbd5e0;
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #ffffff;
+    transition: background .15s, border-color .15s;
+  }
+  .item.checked .checkbox { background: #1A6AFF; border-color: #1A6AFF; }
+  .label { font-size: 15px; color: #2d3748; line-height: 1.5; }
+  .item.checked .label { color: #a0aec0; text-decoration: line-through; }
+  .done-msg { display: none; margin-top: 16px; padding: 12px 14px; border-radius: 8px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; font-size: 14px; }
+  .done-msg.show { display: block; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="head-row">
+      <div class="tag">Your Setup Checklist</div>
+      <button class="reset" onclick="resetAll()">Reset</button>
+    </div>
+    <div class="progress-line" id="progressLine"></div>
+    <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+    <div id="items"></div>
+    <div class="done-msg" id="doneMsg">Everything's checked off. Your Academics account is ready for the term.</div>
+  </div>
+  <script>
+    var STORAGE_KEY = 'academics-admin-setup-checklist-v1';
+    var items = [
+      'User Roles reviewed',
+      'Staff added with correct roles',
+      'Custom Groups and Tags configured',
+      'Term created for the upcoming semester',
+      'Check-In Categories set up',
+      'Locations configured',
+      'Appointment Types created',
+      'Cancellation Reasons added',
+      'Syllabus Importer — team notified it is available'
+    ];
+
+    function getState() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function setState(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function render() {
+      var state = getState();
+      var checkedCount = 0;
+      var html = '';
+      items.forEach(function (label, i) {
+        var checked = !!state[i];
+        if (checked) checkedCount++;
+        html += '<div class="item' + (checked ? ' checked' : '') + '" onclick="toggle(' + i + ')">' +
+          '<div class="checkbox">' + (checked ? '✓' : '') + '</div>' +
+          '<div class="label">' + label + '</div></div>';
+      });
+      document.getElementById('items').innerHTML = html;
+      document.getElementById('progressLine').textContent = checkedCount + ' of ' + items.length + ' complete';
+      document.getElementById('barFill').style.width = Math.round((checkedCount / items.length) * 100) + '%';
+      document.getElementById('doneMsg').classList.toggle('show', checkedCount === items.length);
+    }
+
+    function toggle(i) {
+      var state = getState();
+      state[i] = !state[i];
+      setState(state);
+      render();
+    }
+
+    function resetAll() {
+      localStorage.removeItem(STORAGE_KEY);
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>

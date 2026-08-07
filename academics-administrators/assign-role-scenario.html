@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cancellation Reasons – Quick Check</title>
+<title>Scenario: Stacking Roles</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -13,7 +13,7 @@
     color: #2d3748;
   }
   .card {
-    max-width: 560px;
+    max-width: 600px;
     margin: 0 auto;
     background: #ffffff;
     border: 1px solid #e2e8f0;
@@ -32,18 +32,13 @@
     border-radius: 999px;
     margin-bottom: 12px;
   }
-  h1 {
-    font-size: 17px;
-    font-weight: 700;
-    color: #1a1a2e;
-    line-height: 1.4;
-    margin-bottom: 16px;
-  }
+  .scenario { font-size: 15px; line-height: 1.6; color: #2d3748; margin-bottom: 18px; }
   .options { display: flex; flex-direction: column; gap: 10px; }
   button.option {
     text-align: left;
     font-family: inherit;
-    font-size: 15px;
+    font-size: 14px;
+    line-height: 1.4;
     color: #2d3748;
     background: #ffffff;
     border: 1.5px solid #e2e8f0;
@@ -71,13 +66,13 @@
 </head>
 <body>
   <div class="card">
-    <div class="tag">Quick Check</div>
-    <h1>Why track cancellation reasons instead of just marking an appointment “cancelled”?</h1>
+    <div class="tag">Scenario</div>
+    <p class="scenario">Your Assistant Director of Academics already has full Advisor access. Starting this term, she'll also send progress reports to professors and needs to see what comes back on the Grade Reports page. What's the best way to set this up?</p>
     <div class="options" id="options">
-      <button class="option" data-correct="true" onclick="pick(this, true, 'Exactly — the reason is what makes the data useful.')">It gives you insight into attendance patterns and accountability</button>
-      <button class="option" data-correct="false" onclick="pick(this, false, 'Not accurate — this is a Teamworks Academics feature, not an NCAA rule.')">It's required by the NCAA</button>
-      <button class="option" data-correct="false" onclick="pick(this, false, 'Not what it does — tracking a reason doesn\'t trigger an email.')">It automatically emails the student</button>
-      <button class="option" data-correct="false" onclick="pick(this, false, 'It actually gives you real insight into attendance patterns.')">It has no real benefit</button>
+      <button class="option" data-correct="true" onclick="pick(this, true, 'Right — roles stack. Keep her existing Advisor account and add the Progress Report Manager role on top. No need to touch anything else.')">Keep her as Advisor and add the Progress Report Manager role to her existing account</button>
+      <button class="option" data-correct="false" onclick="pick(this, false, 'That creates a duplicate account and splits her history across two logins for no reason — roles can just be added to the account she already has.')">Create a second account for her with only Progress Report Manager</button>
+      <button class="option" data-correct="false" onclick="pick(this, false, 'That gives her far more access than the job needs — full Administrator can edit appointment types, cancellation reasons, and school-wide settings.')">Make her a full Administrator so she can do everything</button>
+      <button class="option" data-correct="false" onclick="pick(this, false, 'Not necessary — this is a standard role combination you can add yourself in User Management.')">Ask your Product Success Manager to build a custom role</button>
     </div>
     <div class="feedback" id="feedback"></div>
   </div>
@@ -87,10 +82,10 @@
       if (answered) return;
       answered = true;
       var buttons = document.querySelectorAll('.option');
-      buttons.forEach(function(b) { b.disabled = true; });
+      buttons.forEach(function (b) { b.disabled = true; });
       el.classList.add(isCorrect ? 'correct' : 'incorrect');
       if (!isCorrect) {
-        buttons.forEach(function(b) { if (b.dataset.correct === 'true') b.classList.add('correct'); });
+        buttons.forEach(function (b) { if (b.dataset.correct === 'true') b.classList.add('correct'); });
       }
       var fb = document.getElementById('feedback');
       fb.textContent = feedback;

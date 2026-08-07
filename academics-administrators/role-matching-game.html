@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Match the Situation to the Role</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Manrope','Helvetica Neue',Helvetica,Arial,sans-serif;
+    background: #f8fafc;
+    padding: 20px 16px;
+    color: #2d3748;
+  }
+  .card {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px 26px;
+  }
+  .tag {
+    display: inline-block;
+    background: #e8f0fe;
+    color: #1a56db;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  h1 { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #718096; margin-bottom: 18px; }
+  .board { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 560px) { .board { grid-template-columns: 1fr; } }
+  .col-label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #718096; margin-bottom: 8px; }
+  .item {
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #2d3748;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, transform .1s;
+  }
+  .item:hover:not(.matched) { border-color: #1A6AFF; }
+  .item.selected { border-color: #1A6AFF; background: #eff6ff; }
+  .item.matched { border-color: #16a34a; background: #f0fdf4; color: #14532d; cursor: default; }
+  .item.shake { animation: shake .3s; border-color: #dc2626; background: #fef2f2; }
+  @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  .role-name { font-weight: 700; font-size: 14px; }
+  .progress { margin-top: 16px; font-size: 13px; color: #4a5568; text-align: center; }
+  .done { display: none; margin-top: 16px; padding: 12px 14px; border-radius: 8px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; font-size: 14px; text-align: center; }
+  .done.show { display: block; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="tag">Match the Role</div>
+    <h1>Which role fits which situation?</h1>
+    <p class="sub">Click a situation on the left, then click the role you'd assign on the right.</p>
+    <div class="board">
+      <div>
+        <div class="col-label">Situation</div>
+        <div id="situations"></div>
+      </div>
+      <div>
+        <div class="col-label">Role</div>
+        <div id="roles"></div>
+      </div>
+    </div>
+    <div class="progress" id="progress">0 / 5 matched</div>
+    <div class="done" id="done">All matched — nice work. In a real setup, getting this right the first time means less cleanup later.</div>
+  </div>
+
+  <script>
+    var pairs = [
+      { id: 's1', situation: "A work-study student sits at the front of study hall, watches the Kiosk, and jots notes about who's in the building.", role: 'r1', roleName: 'Desk' },
+      { id: 's2', situation: 'A grad assistant needs to pull up class schedules and log classroom attendance for the football team.', role: 'r2', roleName: 'Class Checker' },
+      { id: 's3', situation: 'Your assistant AD wants visibility into travel competition info and the Disclosures module for two sports.', role: 'r3', roleName: 'Operations' },
+      { id: 's4', situation: 'A new hire will send grade checks to professors and needs access to what comes back on the Grade Reports page.', role: 'r4', roleName: 'Progress Report Manager' },
+      { id: 's5', situation: 'A tutor coordinator wants notifications for tutoring requests and no-shows on top of her usual advising access.', role: 'r5', roleName: 'Tutor Coordinator' }
+    ];
+
+    var roleOrder = ['r3', 'r1', 'r5', 'r2', 'r4'];
+
+    var selected = null;
+    var matchedCount = 0;
+
+    function render() {
+      var sHtml = '';
+      pairs.forEach(function (p) {
+        sHtml += '<button class="item" data-id="' + p.id + '" data-side="s" onclick="pick(this)">' + p.situation + '</button>';
+      });
+      document.getElementById('situations').innerHTML = sHtml;
+
+      var rHtml = '';
+      roleOrder.forEach(function (rid) {
+        var p = pairs.filter(function (x) { return x.role === rid; })[0];
+        rHtml += '<button class="item" data-id="' + rid + '" data-side="r" onclick="pick(this)"><span class="role-name">' + p.roleName + '</span></button>';
+      });
+      document.getElementById('roles').innerHTML = rHtml;
+    }
+
+    function pick(el) {
+      if (el.classList.contains('matched')) return;
+      el.classList.remove('shake');
+      var side = el.dataset.side;
+
+      if (!selected) {
+        clearSelection();
+        selected = { el: el, side: side, id: el.dataset.id };
+        el.classList.add('selected');
+        return;
+      }
+
+      if (selected.side === side) {
+        selected.el.classList.remove('selected');
+        selected = { el: el, side: side, id: el.dataset.id };
+        el.classList.add('selected');
+        return;
+      }
+
+      var sId = side === 's' ? el.dataset.id : selected.id;
+      var rId = side === 'r' ? el.dataset.id : selected.id;
+      var pair = pairs.filter(function (p) { return p.id === sId; })[0];
+
+      if (pair.role === rId) {
+        el.classList.remove('selected', 'shake');
+        selected.el.classList.remove('selected', 'shake');
+        el.classList.add('matched');
+        selected.el.classList.add('matched');
+        matchedCount++;
+        document.getElementById('progress').textContent = matchedCount + ' / 5 matched';
+        if (matchedCount === 5) {
+          document.getElementById('done').classList.add('show');
+        }
+      } else {
+        el.classList.add('shake');
+        selected.el.classList.add('shake');
+        setTimeout(function () {
+          el.classList.remove('shake', 'selected');
+          selected.el.classList.remove('shake', 'selected');
+        }, 300);
+      }
+      selected = null;
+    }
+
+    function clearSelection() {
+      document.querySelectorAll('.item.selected').forEach(function (e) { e.classList.remove('selected'); });
+    }
+
+    render();
+  </script>
+</body>
+</html>

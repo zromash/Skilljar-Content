@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sequence: Setting Up a New Term</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Manrope','Helvetica Neue',Helvetica,Arial,sans-serif;
+    background: #f8fafc;
+    padding: 20px 16px;
+    color: #2d3748;
+  }
+  .card {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px 26px;
+  }
+  .tag {
+    display: inline-block;
+    background: #e8f0fe;
+    color: #1a56db;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 12px;
+  }
+  .scenario { font-size: 15px; line-height: 1.6; color: #2d3748; margin-bottom: 18px; }
+  .order-list { min-height: 8px; margin-bottom: 14px; }
+  .order-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #14532d;
+  }
+  .order-num {
+    background: #16a34a;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .pool { display: flex; flex-direction: column; gap: 10px; }
+  button.step {
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #2d3748;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, transform .1s;
+  }
+  button.step:hover { border-color: #1A6AFF; }
+  button.step.shake { animation: shake .3s; border-color: #dc2626; background: #fef2f2; }
+  @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  .done { display: none; margin-top: 14px; padding: 12px 14px; border-radius: 8px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; font-size: 14px; }
+  .done.show { display: block; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="tag">Put It In Order</div>
+    <p class="scenario">It's the start of a new semester. Click these four steps in the order you'd actually do them.</p>
+    <div class="order-list" id="orderList"></div>
+    <div class="pool" id="pool"></div>
+    <div class="done" id="done">That's the right order. Skip the IT check and you'll spend the first week of the term fielding "why can't I find this student" tickets.</div>
+  </div>
+  <script>
+    var steps = [
+      { id: 1, text: 'Create the new term in Teamworks Academics with the correct start and end dates.' },
+      { id: 2, text: "Confirm with your Campus IT department that the new term is included in the data feed." },
+      { id: 3, text: 'Check My School > File Imports to confirm students are coming through in the latest file.' },
+      { id: 4, text: "Review Groups/Tags to make sure student-athletes are categorized correctly for the new term." }
+    ];
+    var shuffled = [steps[2], steps[0], steps[3], steps[1]];
+    var nextExpected = 1;
+
+    function render() {
+      var html = '';
+      shuffled.forEach(function (s) {
+        html += '<button class="step" data-id="' + s.id + '" onclick="pick(this, ' + s.id + ')">' + s.text + '</button>';
+      });
+      document.getElementById('pool').innerHTML = html;
+    }
+
+    function pick(el, id) {
+      if (id === nextExpected) {
+        var stepText = steps.filter(function (s) { return s.id === id; })[0].text;
+        var orderList = document.getElementById('orderList');
+        var item = document.createElement('div');
+        item.className = 'order-item';
+        item.innerHTML = '<div class="order-num">' + nextExpected + '</div><div>' + stepText + '</div>';
+        orderList.appendChild(item);
+        el.remove();
+        nextExpected++;
+        if (nextExpected === 5) {
+          document.getElementById('done').classList.add('show');
+        }
+      } else {
+        el.classList.add('shake');
+        setTimeout(function () { el.classList.remove('shake'); }, 300);
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
