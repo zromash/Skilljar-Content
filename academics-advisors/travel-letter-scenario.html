@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overall or Individual Travel Letter?</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Manrope','Helvetica Neue',Helvetica,Arial,sans-serif;
+    background: #f8fafc;
+    padding: 20px 16px;
+    color: #2d3748;
+  }
+  .card {
+    max-width: 640px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px 26px;
+  }
+  .tag {
+    display: inline-block;
+    background: #e8f0fe;
+    color: #1a56db;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  h1 { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #718096; margin-bottom: 18px; }
+  .situation {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #2d3748;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+    min-height: 66px;
+    display: flex;
+    align-items: center;
+  }
+  .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  @media (max-width: 480px) { .choices { grid-template-columns: 1fr; } }
+  .choice-btn {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1A6AFF;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e0;
+    border-radius: 8px;
+    padding: 14px 10px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: #1A6AFF; background: #eff6ff; }
+  .choice-btn:disabled { cursor: default; opacity: 0.55; }
+  .choice-btn.correct { border-color: #16a34a; background: #f0fdf4; color: #14532d; opacity: 1; }
+  .choice-btn.incorrect { border-color: #dc2626; background: #fef2f2; color: #7f1d1d; opacity: 1; }
+  .feedback {
+    display: none;
+    font-size: 14px;
+    line-height: 1.6;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+  }
+  .feedback.show { display: block; }
+  .feedback.right { background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; }
+  .feedback.wrong { background: #fef2f2; border: 1px solid #fecaca; color: #7f1d1d; }
+  .nav { display: flex; justify-content: space-between; align-items: center; }
+  button.nav-btn {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    background: #1A6AFF;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 18px;
+    cursor: pointer;
+    visibility: hidden;
+  }
+  button.nav-btn.show { visibility: visible; }
+  .dots { display: flex; gap: 6px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #e2e8f0; }
+  .dot.active { background: #1A6AFF; }
+  .dot.done { background: #16a34a; }
+  .done-screen { display: none; text-align: center; }
+  .done-screen.show { display: block; }
+  .done-score { font-size: 28px; font-weight: 800; color: #1a1a2e; margin-bottom: 6px; }
+  .done-msg { font-size: 14px; color: #4a5568; line-height: 1.6; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div id="quizView">
+      <div class="tag">Pick a Resolution</div>
+      <h1>Overall Letter or Individual Letter?</h1>
+      <p class="sub">Read the situation, then choose which travel letter you'd send.</p>
+      <div class="situation" id="situationText"></div>
+      <div class="choices" id="choices"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="nav">
+        <div class="dots" id="dots"></div>
+        <button class="nav-btn" id="nextBtn" onclick="next()">Next →</button>
+      </div>
+    </div>
+    <div class="done-screen" id="doneScreen">
+      <div class="tag">Complete</div>
+      <div class="done-score" id="doneScore"></div>
+      <p class="done-msg">The overall letter covers your team's full season schedule. An individual letter covers one specific competition and roster — use it for anything that falls outside the standard schedule.</p>
+    </div>
+  </div>
+
+  <script>
+    var situations = [
+      {
+        text: "It's the start of the semester, and you need to notify professors about your volleyball team's full competition schedule for the season.",
+        answer: 'overall',
+        feedback: {
+          overall: "Right — this covers every scheduled competition for the term in one letter, which is exactly what a season schedule needs.",
+          individual: "Not quite — this is the full season schedule, not a single competition. That calls for an overall letter."
+        }
+      },
+      {
+        text: 'Only three golfers are traveling to an out-of-conference invitational this weekend — the rest of the team stays on campus.',
+        answer: 'individual',
+        feedback: {
+          overall: "Not quite — this is a single competition with a specific subset of the roster traveling, which is what an individual letter is for.",
+          individual: "Right — a specific competition with a specific group of student-athletes is exactly what an individual letter covers."
+        }
+      },
+      {
+        text: "A track meet just got added to the schedule mid-season and wasn't included in your original season letter.",
+        answer: 'individual',
+        feedback: {
+          overall: "Not quite — re-sending the whole season letter isn't necessary for one added competition. Send an individual letter just for this meet.",
+          individual: "Right — a one-off addition to an already-covered schedule is a clean case for an individual letter."
+        }
+      },
+      {
+        text: "You're setting up travel letters before the fall semester begins, covering every scheduled meet for the entire cross country team.",
+        answer: 'overall',
+        feedback: {
+          overall: "Right — covering every meet on the term calendar in a single letter is what the overall letter is built for.",
+          individual: "Not quite — this covers the whole season's schedule, not one competition. That's an overall letter."
+        }
+      }
+    ];
+
+    var current = 0;
+    var score = 0;
+    var answered = false;
+
+    function render() {
+      var s = situations[current];
+      document.getElementById('situationText').textContent = s.text;
+      document.getElementById('feedback').className = 'feedback';
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('nextBtn').classList.remove('show');
+      answered = false;
+
+      document.getElementById('choices').innerHTML =
+        '<button class="choice-btn" data-choice="overall" onclick="choose(this, \'overall\')">Send an Overall Letter</button>' +
+        '<button class="choice-btn" data-choice="individual" onclick="choose(this, \'individual\')">Send an Individual Letter</button>';
+
+      var dotsHtml = '';
+      situations.forEach(function (_, i) {
+        var cls = 'dot';
+        if (i < current) cls += ' done';
+        else if (i === current) cls += ' active';
+        dotsHtml += '<div class="' + cls + '"></div>';
+      });
+      document.getElementById('dots').innerHTML = dotsHtml;
+    }
+
+    function choose(el, choice) {
+      if (answered) return;
+      answered = true;
+      var s = situations[current];
+      var correct = choice === s.answer;
+      if (correct) score++;
+
+      document.querySelectorAll('.choice-btn').forEach(function (btn) {
+        btn.disabled = true;
+        if (btn.dataset.choice === s.answer) btn.classList.add('correct');
+        else if (btn.dataset.choice === choice) btn.classList.add('incorrect');
+      });
+
+      var fb = document.getElementById('feedback');
+      fb.className = 'feedback show ' + (correct ? 'right' : 'wrong');
+      fb.textContent = s.feedback[choice];
+
+      document.getElementById('nextBtn').classList.add('show');
+      document.getElementById('nextBtn').textContent = current === situations.length - 1 ? 'See Results →' : 'Next →';
+    }
+
+    function next() {
+      current++;
+      if (current >= situations.length) {
+        showDone();
+        return;
+      }
+      render();
+    }
+
+    function showDone() {
+      document.getElementById('quizView').style.display = 'none';
+      document.getElementById('doneScreen').classList.add('show');
+      document.getElementById('doneScore').textContent = score + ' / ' + situations.length + ' correct';
+    }
+
+    render();
+  </script>
+</body>
+</html>
