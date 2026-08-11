@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Put the Steps in Order</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Manrope','Helvetica Neue',Helvetica,Arial,sans-serif;
+    background: #f8fafc;
+    padding: 20px 16px;
+    color: #2d3748;
+  }
+  .card {
+    max-width: 640px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px 26px;
+  }
+  .tag {
+    display: inline-block;
+    background: #e8f0fe;
+    color: #1a56db;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  h1 { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #718096; margin-bottom: 18px; }
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #2d3748;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, transform .1s;
+  }
+  .item:hover:not(.done) { border-color: #1A6AFF; }
+  .item.done { border-color: #16a34a; background: #f0fdf4; color: #14532d; cursor: default; }
+  .item.shake { animation: shake .3s; border-color: #dc2626; background: #fef2f2; }
+  @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  .num {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #718096;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .item.done .num { background: #16a34a; color: #ffffff; }
+  .progress { margin-top: 6px; font-size: 13px; color: #4a5568; text-align: center; }
+  .done-msg { display: none; margin-top: 16px; padding: 12px 14px; border-radius: 8px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; font-size: 14px; text-align: center; }
+  .done-msg.show { display: block; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="tag">Put It In Order</div>
+    <h1>Build a travel letter, step by step</h1>
+    <p class="sub">Click each step in the order you'd actually do it.</p>
+    <div id="items"></div>
+    <div class="progress" id="progress">0 / 4 in order</div>
+    <div class="done-msg" id="doneMsg">In order — that's the exact sequence: the competition has to exist before you can build a roster for it, conflicts need a roster to check against, and the template goes on last.</div>
+  </div>
+
+  <script>
+    var steps = [
+      { id: 'a', order: 1, text: 'Add the competition to the schedule — dates, opponent, location.' },
+      { id: 'b', order: 2, text: 'Build the travel roster — select which student-athletes are traveling.' },
+      { id: 'c', order: 3, text: 'Resolve any travel conflicts flagged for the roster.' },
+      { id: 'd', order: 4, text: 'Apply the travel letter template and generate the letter.' }
+    ];
+
+    var displayOrder = ['c', 'a', 'd', 'b'];
+    var nextExpected = 1;
+    var doneCount = 0;
+
+    function render() {
+      var html = '';
+      displayOrder.forEach(function (id) {
+        var s = steps.filter(function (x) { return x.id === id; })[0];
+        html += '<button class="item" data-id="' + s.id + '" onclick="pick(this)"><span class="num">?</span><span>' + s.text + '</span></button>';
+      });
+      document.getElementById('items').innerHTML = html;
+    }
+
+    function pick(el) {
+      if (el.classList.contains('done')) return;
+      var id = el.dataset.id;
+      var s = steps.filter(function (x) { return x.id === id; })[0];
+
+      if (s.order === nextExpected) {
+        el.classList.add('done');
+        el.querySelector('.num').textContent = s.order;
+        nextExpected++;
+        doneCount++;
+        document.getElementById('progress').textContent = doneCount + ' / 4 in order';
+        if (doneCount === 4) {
+          document.getElementById('doneMsg').classList.add('show');
+        }
+      } else {
+        el.classList.add('shake');
+        setTimeout(function () { el.classList.remove('shake'); }, 300);
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
