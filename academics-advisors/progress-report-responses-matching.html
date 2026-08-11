@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Where Do I Look?</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Manrope','Helvetica Neue',Helvetica,Arial,sans-serif;
+    background: #f8fafc;
+    padding: 20px 16px;
+    color: #2d3748;
+  }
+  .card {
+    max-width: 720px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px 26px;
+  }
+  .tag {
+    display: inline-block;
+    background: #e8f0fe;
+    color: #1a56db;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  h1 { font-size: 16px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: #718096; margin-bottom: 18px; }
+  .board { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 560px) { .board { grid-template-columns: 1fr; } }
+  .col-label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #718096; margin-bottom: 8px; }
+  .item {
+    text-align: left;
+    width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #2d3748;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, transform .1s;
+  }
+  .item:hover:not(.matched) { border-color: #1A6AFF; }
+  .item.selected { border-color: #1A6AFF; background: #eff6ff; }
+  .item.matched { border-color: #16a34a; background: #f0fdf4; color: #14532d; cursor: default; }
+  .item.shake { animation: shake .3s; border-color: #dc2626; background: #fef2f2; }
+  @keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+  .location-name { font-weight: 700; font-size: 14px; }
+  .progress { margin-top: 16px; font-size: 13px; color: #4a5568; text-align: center; }
+  .done { display: none; margin-top: 16px; padding: 12px 14px; border-radius: 8px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #14532d; font-size: 14px; text-align: center; }
+  .done.show { display: block; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="tag">Match the Location</div>
+    <h1>Where do I look for that?</h1>
+    <p class="sub">Click a need on the left, then click the place you'd go to find it on the right.</p>
+    <div class="board">
+      <div>
+        <div class="col-label">You need to...</div>
+        <div id="situations"></div>
+      </div>
+      <div>
+        <div class="col-label">Go to...</div>
+        <div id="locations"></div>
+      </div>
+    </div>
+    <div class="progress" id="progress">0 / 3 matched</div>
+    <div class="done" id="done">All matched — you know exactly where to look, whether it's one student, one campaign, or your whole caseload.</div>
+  </div>
+
+  <script>
+    var pairs = [
+      { id: 's1', situation: "See every progress report response across your full caseload, sorted and filtered in one table.", loc: 'l1', locName: 'Reports > Progress Reports' },
+      { id: 's2', situation: "Pull up one specific student-athlete's full feedback history before a one-on-one meeting.", loc: 'l2', locName: 'Student Dashboard > Feedback tab' },
+      { id: 's3', situation: "Check who has responded and who hasn't yet for a progress report campaign you just sent.", loc: 'l3', locName: 'Grade Checks > View Responses' }
+    ];
+
+    var locOrder = ['l2', 'l3', 'l1'];
+
+    var selected = null;
+    var matchedCount = 0;
+
+    function render() {
+      var sHtml = '';
+      pairs.forEach(function (p) {
+        sHtml += '<button class="item" data-id="' + p.id + '" data-side="s" onclick="pick(this)">' + p.situation + '</button>';
+      });
+      document.getElementById('situations').innerHTML = sHtml;
+
+      var lHtml = '';
+      locOrder.forEach(function (lid) {
+        var p = pairs.filter(function (x) { return x.loc === lid; })[0];
+        lHtml += '<button class="item" data-id="' + lid + '" data-side="l" onclick="pick(this)"><span class="location-name">' + p.locName + '</span></button>';
+      });
+      document.getElementById('locations').innerHTML = lHtml;
+    }
+
+    function pick(el) {
+      if (el.classList.contains('matched')) return;
+      el.classList.remove('shake');
+      var side = el.dataset.side;
+
+      if (!selected) {
+        clearSelection();
+        selected = { el: el, side: side, id: el.dataset.id };
+        el.classList.add('selected');
+        return;
+      }
+
+      if (selected.side === side) {
+        selected.el.classList.remove('selected');
+        selected = { el: el, side: side, id: el.dataset.id };
+        el.classList.add('selected');
+        return;
+      }
+
+      var sId = side === 's' ? el.dataset.id : selected.id;
+      var lId = side === 'l' ? el.dataset.id : selected.id;
+      var pair = pairs.filter(function (p) { return p.id === sId; })[0];
+
+      if (pair.loc === lId) {
+        el.classList.remove('selected', 'shake');
+        selected.el.classList.remove('selected', 'shake');
+        el.classList.add('matched');
+        selected.el.classList.add('matched');
+        matchedCount++;
+        document.getElementById('progress').textContent = matchedCount + ' / 3 matched';
+        if (matchedCount === 3) {
+          document.getElementById('done').classList.add('show');
+        }
+      } else {
+        el.classList.add('shake');
+        selected.el.classList.add('shake');
+        setTimeout(function () {
+          el.classList.remove('shake', 'selected');
+          selected.el.classList.remove('shake', 'selected');
+        }, 300);
+      }
+      selected = null;
+    }
+
+    function clearSelection() {
+      document.querySelectorAll('.item.selected').forEach(function (e) { e.classList.remove('selected'); });
+    }
+
+    render();
+  </script>
+</body>
+</html>
