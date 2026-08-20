@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Anonymity knowledge check</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Manrope', -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: #ffffff;
+    color: #2d3748;
+  }
+
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px 22px 24px;
+  }
+
+  .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1A6AFF;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 4px 0;
+  }
+
+  .intro {
+    font-size: 13px;
+    color: #718096;
+    margin: 0 0 18px 0;
+  }
+
+  .item {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+
+  .item-number {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin: 0 0 6px 0;
+  }
+
+  .statement {
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: #1a1a2e;
+    margin: 0 0 12px 0;
+  }
+
+  .options {
+    display: flex;
+    gap: 10px;
+  }
+
+  .opt-btn {
+    flex: 1;
+    padding: 10px 12px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    border: 2px solid #e2e8f0;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #1a1a2e;
+    cursor: pointer;
+  }
+
+  .opt-btn:hover:not(:disabled) {
+    border-color: #1A6AFF;
+  }
+
+  .opt-btn:disabled {
+    cursor: default;
+  }
+
+  .opt-btn.correct {
+    border-color: #1A6AFF;
+    background: #eff6ff;
+    color: #1A6AFF;
+  }
+
+  .opt-btn.incorrect {
+    border-color: #cbd5e0;
+    background: #f8fafc;
+    color: #94a3b8;
+  }
+
+  .item-feedback {
+    display: none;
+    margin-top: 10px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #4a5568;
+    border-left: 3px solid #1A6AFF;
+    padding-left: 10px;
+  }
+
+  .item-feedback.show {
+    display: block;
+  }
+
+  .summary {
+    display: none;
+    text-align: center;
+    padding: 16px 0 4px;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 8px;
+  }
+
+  .summary.show {
+    display: block;
+  }
+
+  .summary-score {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1A6AFF;
+    margin: 0 0 4px 0;
+  }
+
+  .summary-note {
+    font-size: 13.5px;
+    color: #718096;
+    margin: 0 0 14px 0;
+  }
+
+  .restart-btn {
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #1A6AFF;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="label">Test yourself</p>
+  <p class="intro">True or false: what athletes can see in an Anonymous Reporting thread.</p>
+
+  <div class="item" id="item-1">
+    <p class="item-number">1 of 5</p>
+    <p class="statement">The athlete's name is visible in the Anonymous Reporting message thread.</p>
+    <div class="options">
+      <button class="opt-btn" data-answer="false" onclick="answer(1, 'true')">True</button>
+      <button class="opt-btn" data-answer="false" onclick="answer(1, 'false')">False</button>
+    </div>
+    <div class="item-feedback" id="feedback-1">False. The report stays anonymous unless the athlete chooses to include their name in the message text itself.</div>
+  </div>
+
+  <div class="item" id="item-2">
+    <p class="item-number">2 of 5</p>
+    <p class="statement">The name of the administrator who responds appears in the athlete's message thread.</p>
+    <div class="options">
+      <button class="opt-btn" data-answer="true" onclick="answer(2, 'true')">True</button>
+      <button class="opt-btn" data-answer="true" onclick="answer(2, 'false')">False</button>
+    </div>
+    <div class="item-feedback" id="feedback-2">True. The athlete can see which administrator responded, even though their own identity stays hidden.</div>
+  </div>
+
+  <div class="item" id="item-3">
+    <p class="item-number">3 of 5</p>
+    <p class="statement">The athlete can see how many staff members have viewed their report.</p>
+    <div class="options">
+      <button class="opt-btn" data-answer="true" onclick="answer(3, 'true')">True</button>
+      <button class="opt-btn" data-answer="true" onclick="answer(3, 'false')">False</button>
+    </div>
+    <div class="item-feedback" id="feedback-3">True. The thread shows the athlete how many staff members have viewed their report.</div>
+  </div>
+
+  <div class="item" id="item-4">
+    <p class="item-number">4 of 5</p>
+    <p class="statement">An athlete can send multiple follow-up messages in the same thread without revealing their identity.</p>
+    <div class="options">
+      <button class="opt-btn" data-answer="true" onclick="answer(4, 'true')">True</button>
+      <button class="opt-btn" data-answer="true" onclick="answer(4, 'false')">False</button>
+    </div>
+    <div class="item-feedback" id="feedback-4">True. Athletes can continue responding on an active report, and anonymity is maintained throughout.</div>
+  </div>
+
+  <div class="item" id="item-5">
+    <p class="item-number">5 of 5</p>
+    <p class="statement">An athlete's identity is only revealed if they choose to include it in the text of their message.</p>
+    <div class="options">
+      <button class="opt-btn" data-answer="true" onclick="answer(5, 'true')">True</button>
+      <button class="opt-btn" data-answer="true" onclick="answer(5, 'false')">False</button>
+    </div>
+    <div class="item-feedback" id="feedback-5">True. Anonymous Reporting doesn't collect or display the athlete's name — the only way it's shared is if the athlete types it themselves.</div>
+  </div>
+
+  <div class="summary" id="summary">
+    <p class="summary-score" id="summary-score"></p>
+    <p class="summary-note">Anonymous Reporting protects the athlete's identity by default — administrators only see what the athlete chooses to share.</p>
+    <button class="restart-btn" onclick="restart()">Try again</button>
+  </div>
+</div>
+
+<script>
+  var correctAnswers = { 1: 'false', 2: 'true', 3: 'true', 4: 'true', 5: 'true' };
+  var results = {};
+
+  function answer(num, choice) {
+    if (results[num] !== undefined) return;
+
+    var correct = correctAnswers[num];
+    results[num] = (choice === correct);
+
+    var buttons = document.querySelectorAll('#item-' + num + ' .opt-btn');
+    buttons.forEach(function(btn) {
+      btn.disabled = true;
+      var btnValue = btn.textContent.trim().toLowerCase();
+      if (btnValue === correct) {
+        btn.classList.add('correct');
+      } else {
+        btn.classList.add('incorrect');
+      }
+    });
+
+    document.getElementById('feedback-' + num).classList.add('show');
+
+    if (Object.keys(results).length === 5) {
+      showSummary();
+    }
+  }
+
+  function showSummary() {
+    var score = 0;
+    for (var k in results) {
+      if (results[k]) score++;
+    }
+    document.getElementById('summary-score').textContent = score + ' of 5 correct';
+    document.getElementById('summary').classList.add('show');
+  }
+
+  function restart() {
+    location.reload();
+  }
+</script>
+</body>
+</html>

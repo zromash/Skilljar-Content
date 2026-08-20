@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Resolved or Archived?</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Manrope', -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: #ffffff;
+    color: #2d3748;
+  }
+
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px 22px 24px;
+  }
+
+  .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1A6AFF;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 10px 0;
+  }
+
+  .progress {
+    font-size: 12px;
+    color: #718096;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+  }
+
+  .scenario-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+  }
+
+  .scenario-text {
+    font-size: 15px;
+    line-height: 1.65;
+    color: #2d3748;
+    margin: 0;
+  }
+
+  .question {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin: 0 0 14px 0;
+  }
+
+  .options {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .option-btn {
+    flex: 1;
+    padding: 14px 12px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1a1a2e;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: #1A6AFF;
+  }
+
+  .option-btn:disabled {
+    cursor: default;
+  }
+
+  .option-btn.correct {
+    border-color: #1A6AFF;
+    background: #eff6ff;
+    color: #1A6AFF;
+  }
+
+  .option-btn.incorrect {
+    border-color: #cbd5e0;
+    background: #f8fafc;
+    color: #94a3b8;
+  }
+
+  .feedback {
+    display: none;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .feedback.show {
+    display: block;
+  }
+
+  .feedback.right {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1a1a2e;
+  }
+
+  .feedback.wrong {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #1a1a2e;
+  }
+
+  .feedback strong {
+    color: #1A6AFF;
+  }
+
+  .next-btn, .restart-btn {
+    display: none;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #1A6AFF;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+
+  .next-btn.show, .restart-btn.show {
+    display: inline-block;
+  }
+
+  .done-message {
+    display: none;
+    text-align: center;
+    padding: 20px 0 4px;
+  }
+
+  .done-message.show {
+    display: block;
+  }
+
+  .done-message p {
+    font-size: 15px;
+    color: #2d3748;
+    margin: 0 0 14px 0;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="label">Test Yourself</p>
+
+  <div id="scenario-1" class="scenario-block">
+    <p class="progress">Scenario 1 of 2</p>
+    <div class="scenario-card">
+      <p class="scenario-text">An athlete submitted a report about a gear sizing issue. They never responded to any follow-up after their initial message, and have since left the team — they're no longer on your active roster.</p>
+    </div>
+    <p class="question">Should this report be marked Resolved or Archived?</p>
+    <div class="options">
+      <button class="option-btn" data-answer="resolved" onclick="answer(1, 'resolved')">Resolved</button>
+      <button class="option-btn" data-answer="archived" onclick="answer(1, 'archived')">Archived</button>
+    </div>
+    <div id="feedback-1-archived" class="feedback right">
+      <strong>Archived is correct.</strong> Resolved is for concerns you've confirmed were addressed. This one was never followed up on, and the athlete leaving the team is an administrative reason to close it out.
+    </div>
+    <div id="feedback-1-resolved" class="feedback wrong">
+      <strong>Not quite.</strong> Resolved means the concern was confirmed addressed. Since this athlete never responded and is no longer active, Archived fits better — closing it for administrative reasons rather than a confirmed resolution.
+    </div>
+    <button id="next-1" class="next-btn" onclick="showScenario(2)">Next scenario &rarr;</button>
+  </div>
+
+  <div id="scenario-2" class="scenario-block" style="display:none;">
+    <p class="progress">Scenario 2 of 2</p>
+    <div class="scenario-card">
+      <p class="scenario-text">An athlete reported a maintenance issue in the locker room. Facilities addressed it within a few days, and the athlete replied in the thread to confirm everything had been fixed.</p>
+    </div>
+    <p class="question">Should this report be marked Resolved or Archived?</p>
+    <div class="options">
+      <button class="option-btn" data-answer="resolved" onclick="answer(2, 'resolved')">Resolved</button>
+      <button class="option-btn" data-answer="archived" onclick="answer(2, 'archived')">Archived</button>
+    </div>
+    <div id="feedback-2-resolved" class="feedback right">
+      <strong>Resolved is correct.</strong> The concern was addressed and the athlete confirmed it — that's exactly when Resolved applies.
+    </div>
+    <div id="feedback-2-archived" class="feedback wrong">
+      <strong>Not quite.</strong> Archived is for closing a report for administrative reasons, like no response or end of semester. Here, the concern was actually addressed and confirmed, so Resolved is the better fit.
+    </div>
+    <div id="done-message" class="done-message">
+      <p>Both scenarios come down to the same question: was the concern confirmed addressed (Resolved), or is it being closed for another reason (Archived)?</p>
+      <button class="restart-btn" onclick="restart()">Try again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function answer(scenarioNum, choice) {
+    var buttons = document.querySelectorAll('#scenario-' + scenarioNum + ' .option-btn');
+    var correct = scenarioNum === 1 ? 'archived' : 'resolved';
+
+    buttons.forEach(function(btn) {
+      btn.disabled = true;
+      if (btn.dataset.answer === correct) {
+        btn.classList.add('correct');
+      } else {
+        btn.classList.add('incorrect');
+      }
+    });
+
+    document.getElementById('feedback-' + scenarioNum + '-' + choice).classList.add('show');
+
+    if (scenarioNum === 1) {
+      document.getElementById('next-1').classList.add('show');
+    } else {
+      document.getElementById('done-message').classList.add('show');
+    }
+  }
+
+  function showScenario(num) {
+    document.getElementById('scenario-1').style.display = 'none';
+    document.getElementById('scenario-2').style.display = 'block';
+  }
+
+  function restart() {
+    location.reload();
+  }
+</script>
+</body>
+</html>
