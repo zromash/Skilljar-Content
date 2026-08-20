@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Administrators vs. assigned users</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Manrope', -apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: #ffffff;
+    color: #2d3748;
+  }
+
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px 22px 24px;
+  }
+
+  .label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #1A6AFF;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 4px 0;
+  }
+
+  .intro {
+    font-size: 13px;
+    color: #718096;
+    margin: 0 0 18px 0;
+  }
+
+  .item {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+
+  .item-number {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin: 0 0 6px 0;
+  }
+
+  .statement {
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: #1a1a2e;
+    margin: 0 0 12px 0;
+  }
+
+  .options {
+    display: flex;
+    gap: 10px;
+  }
+
+  .opt-btn {
+    flex: 1;
+    padding: 10px 12px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    border: 2px solid #e2e8f0;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #1a1a2e;
+    cursor: pointer;
+  }
+
+  .opt-btn:hover:not(:disabled) {
+    border-color: #1A6AFF;
+  }
+
+  .opt-btn:disabled {
+    cursor: default;
+  }
+
+  .opt-btn.correct {
+    border-color: #1A6AFF;
+    background: #eff6ff;
+    color: #1A6AFF;
+  }
+
+  .opt-btn.incorrect {
+    border-color: #cbd5e0;
+    background: #f8fafc;
+    color: #94a3b8;
+  }
+
+  .item-feedback {
+    display: none;
+    margin-top: 10px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #4a5568;
+    border-left: 3px solid #1A6AFF;
+    padding-left: 10px;
+  }
+
+  .item-feedback.show {
+    display: block;
+  }
+
+  .summary {
+    display: none;
+    text-align: center;
+    padding: 16px 0 4px;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 8px;
+  }
+
+  .summary.show {
+    display: block;
+  }
+
+  .summary-score {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1A6AFF;
+    margin: 0 0 4px 0;
+  }
+
+  .summary-note {
+    font-size: 13.5px;
+    color: #718096;
+    margin: 0 0 14px 0;
+  }
+
+  .restart-btn {
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #1A6AFF;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="label">Test yourself</p>
+  <p class="intro">Sort each statement: does it describe an administrator or an assigned user?</p>
+
+  <div class="item" id="item-1">
+    <p class="item-number">1 of 3</p>
+    <p class="statement">Automatically receives every new report, without being added to it individually.</p>
+    <div class="options">
+      <button class="opt-btn" data-answer="admin" onclick="answer(1, 'admin')">Administrator</button>
+      <button class="opt-btn" data-answer="user" onclick="answer(1, 'user')">Assigned user</button>
+    </div>
+    <div class="item-feedback" id="feedback-1">Administrator. Administrators have universal access, so every new report reaches them automatically.</div>
+  </div>
+
+  <div class="item" id="item-2">
+    <p class="item-number">2 of 3</p>
+    <p class="statement">Must be manually assigned to a specific report before they can view it.</p>
+    <div class="options">
+      <button class="opt-btn" data-answer="admin" onclick="answer(2, 'admin')">Administrator</button>
+      <button class="opt-btn" data-answer="user" onclick="answer(2, 'user')">Assigned user</button>
+    </div>
+    <div class="item-feedback" id="feedback-2">Assigned user. An administrator has to intentionally add them to a report before they can see it.</div>
+  </div>
+
+  <div class="item" id="item-3">
+    <p class="item-number">3 of 3</p>
+    <p class="statement">Has Pulse access, but doesn't see any reports until an administrator assigns them to one.</p>
+    <div class="options">
+      <button class="opt-btn" data-answer="admin" onclick="answer(3, 'admin')">Administrator</button>
+      <button class="opt-btn" data-answer="user" onclick="answer(3, 'user')">Assigned user</button>
+    </div>
+    <div class="item-feedback" id="feedback-3">Assigned user. Pulse access alone doesn't include visibility into reports — that's added per report.</div>
+  </div>
+
+  <div class="summary" id="summary">
+    <p class="summary-score" id="summary-score"></p>
+    <p class="summary-note">Administrators get access by role, automatically and across every report. Assigned users get access one report at a time, only when someone adds them.</p>
+    <button class="restart-btn" onclick="restart()">Try again</button>
+  </div>
+</div>
+
+<script>
+  var correctAnswers = { 1: 'admin', 2: 'user', 3: 'user' };
+  var results = {};
+
+  function answer(num, choice) {
+    if (results[num] !== undefined) return;
+
+    var correct = correctAnswers[num];
+    results[num] = (choice === correct);
+
+    var buttons = document.querySelectorAll('#item-' + num + ' .opt-btn');
+    buttons.forEach(function(btn) {
+      btn.disabled = true;
+      if (btn.dataset.answer === correct) {
+        btn.classList.add('correct');
+      } else {
+        btn.classList.add('incorrect');
+      }
+    });
+
+    document.getElementById('feedback-' + num).classList.add('show');
+
+    if (Object.keys(results).length === 3) {
+      showSummary();
+    }
+  }
+
+  function showSummary() {
+    var score = 0;
+    for (var k in results) {
+      if (results[k]) score++;
+    }
+    document.getElementById('summary-score').textContent = score + ' of 3 correct';
+    document.getElementById('summary').classList.add('show');
+  }
+
+  function restart() {
+    location.reload();
+  }
+</script>
+</body>
+</html>
